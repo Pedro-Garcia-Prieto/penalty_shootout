@@ -1,0 +1,16 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`LoadingSpinner > matches the structural snapshot 1`] = `
+<div
+  aria-live="polite"
+  class="spinner"
+  role="status"
+>
+  <div
+    class="spinner__circle"
+  />
+  <p>
+    Working…
+  </p>
+</div>
+`;

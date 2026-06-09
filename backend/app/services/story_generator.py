@@ -49,6 +49,7 @@ def build_prompt(match: MatchInfo) -> str:
         away_team=match.away_team,
         date=match.date or "unknown",
         venue=match.venue or "unknown",
+        round=match.round or "unknown",
         score=match.score or "unknown",
         penalty_score=match.penalty_score or "unknown",
         kicks_block=_format_kicks_block(match.kicks),

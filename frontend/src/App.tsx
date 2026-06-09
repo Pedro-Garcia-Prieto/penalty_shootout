@@ -61,6 +61,9 @@ export default function App() {
 
         <div className="hero__panel">
           <div className="hero-card">
+            <div className="hero-card__stadium" aria-hidden="true">
+              🏟️
+            </div>
             <p className="hero-card__label">Matchday atmosphere</p>
             <h2>Pick a nation. Relive the tension.</h2>
             <p>

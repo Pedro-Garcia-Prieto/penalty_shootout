@@ -93,6 +93,7 @@ async def post_story(request: StoryRequest) -> StoryResponse:
             date=str(date_value) if date_value else None,
             year=str(row.get("Year", "")),
             venue=str(row.get("Venue", "")),
+            round=str(row.get("Round", "")),    
             score=score_str,
             penalty_score=pen_str,
             kicks=kicks,

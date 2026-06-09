@@ -12,8 +12,8 @@ export interface MatchInfo {
   home_team: string;
   away_team: string;
   date: string | null;
-  year: number | null;
-  stage: string | null;
+  year: string | null;
+  round: string | null;
   venue: string | null;
   score: string | null;
   penalty_score: string | null;

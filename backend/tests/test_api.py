@@ -24,8 +24,8 @@ def _sample_match() -> MatchInfo:
     return MatchInfo(
         home_team="Argentina",
         away_team="France",
-        year=2022,
-        stage="Final",
+        year="2022",
+        round="Final",
         score="3-3",
         penalty_score="4-2",
         kicks=[
@@ -83,7 +83,7 @@ def test_build_prompt_handles_missing_optional_fields():
         home_team="Spain",
         away_team="Italy",
         year=None,
-        stage=None,
+        round=None,
         score=None,
         penalty_score=None,
         kicks=[],

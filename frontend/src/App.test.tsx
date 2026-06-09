@@ -26,8 +26,9 @@ const historicalResponse: StoryResponse = {
     home_team: "Argentina",
     away_team: "France",
     date: "2022-12-18",
-    year: 2022,
-    stage: "Final",
+    year: "2022",
+    venue: "Lusail Stadium",
+    round: "Final",
     score: "3-3",
     penalty_score: "4-2",
     kicks: [
@@ -87,11 +88,11 @@ describe("App — initial render", () => {
     });
   });
 
-  it("populates the country dropdown with the API response", async () => {
+  it("populates the country buttons with the API response", async () => {
     render(<App />);
     for (const country of COUNTRIES) {
       expect(
-        await screen.findByRole("option", { name: country }),
+        await screen.findByRole("button", { name: new RegExp(country, "i") }),
       ).toBeInTheDocument();
     }
   });
@@ -113,24 +114,32 @@ describe("App — country selection", () => {
     const user = userEvent.setup();
     render(<App />);
 
-    await screen.findByRole("option", { name: "Argentina" });
-    await user.selectOptions(screen.getByRole("combobox"), "Argentina");
+    const argentinaButton = await screen.findByRole("button", {
+      name: /Argentina/i,
+    });
+    await user.click(argentinaButton);
 
     expect(
       screen.getByRole("button", { name: /generate story/i }),
     ).toBeEnabled();
   });
 
-  it("disables the button again if the user clears the selection", async () => {
+  it("disables the button again if the user clicks the same country twice", async () => {
     const user = userEvent.setup();
     render(<App />);
 
-    await screen.findByRole("option", { name: "Argentina" });
-    const select = screen.getByRole("combobox");
+    const argentinaButton = await screen.findByRole("button", {
+      name: /Argentina/i,
+    });
 
-    await user.selectOptions(select, "Argentina");
-    await user.selectOptions(select, "");
+    // First click selects Argentina
+    await user.click(argentinaButton);
+    expect(
+      screen.getByRole("button", { name: /generate story/i }),
+    ).toBeEnabled();
 
+    // Second click on same country deselects it
+    await user.click(argentinaButton);
     expect(
       screen.getByRole("button", { name: /generate story/i }),
     ).toBeDisabled();
@@ -153,8 +162,10 @@ describe("App — historical story flow", () => {
     );
 
     render(<App />);
-    await screen.findByRole("option", { name: "Argentina" });
-    await user.selectOptions(screen.getByRole("combobox"), "Argentina");
+    const argentinaButton = await screen.findByRole("button", {
+      name: /Argentina/i,
+    });
+    await user.click(argentinaButton);
     await user.click(screen.getByRole("button", { name: /generate story/i }));
 
     expect(screen.getByRole("status")).toBeInTheDocument();
@@ -171,8 +182,10 @@ describe("App — historical story flow", () => {
     mockedFetchStory.mockResolvedValue(historicalResponse);
 
     render(<App />);
-    await screen.findByRole("option", { name: "Argentina" });
-    await user.selectOptions(screen.getByRole("combobox"), "Argentina");
+    const argentinaButton = await screen.findByRole("button", {
+      name: /Argentina/i,
+    });
+    await user.click(argentinaButton);
     await user.click(screen.getByRole("button", { name: /generate story/i }));
 
     expect(await screen.findByText(/historical shootout/i)).toBeInTheDocument();
@@ -185,8 +198,10 @@ describe("App — historical story flow", () => {
     mockedFetchStory.mockResolvedValue(historicalResponse);
 
     render(<App />);
-    await screen.findByRole("option", { name: "Argentina" });
-    await user.selectOptions(screen.getByRole("combobox"), "Argentina");
+    const argentinaButton = await screen.findByRole("button", {
+      name: /Argentina/i,
+    });
+    await user.click(argentinaButton);
     await user.click(screen.getByRole("button", { name: /generate story/i }));
 
     await waitFor(() => {
@@ -205,8 +220,8 @@ describe("App — speculative story flow", () => {
     mockedFetchStory.mockResolvedValue(speculativeResponse);
 
     render(<App />);
-    await screen.findByRole("option", { name: "Canada" });
-    await user.selectOptions(screen.getByRole("combobox"), "Canada");
+    const canadaButton = await screen.findByRole("button", { name: /Canada/i });
+    await user.click(canadaButton);
     await user.click(screen.getByRole("button", { name: /generate story/i }));
 
     expect(await screen.findByText(/speculative tale/i)).toBeInTheDocument();
@@ -220,8 +235,8 @@ describe("App — speculative story flow", () => {
     mockedFetchStory.mockResolvedValue(speculativeResponse);
 
     render(<App />);
-    await screen.findByRole("option", { name: "Canada" });
-    await user.selectOptions(screen.getByRole("combobox"), "Canada");
+    const canadaButton = await screen.findByRole("button", { name: /Canada/i });
+    await user.click(canadaButton);
     await user.click(screen.getByRole("button", { name: /generate story/i }));
 
     await screen.findByText(/speculative tale/i);
@@ -245,8 +260,10 @@ describe("App — error handling", () => {
     });
 
     render(<App />);
-    await screen.findByRole("option", { name: "Argentina" });
-    await user.selectOptions(screen.getByRole("combobox"), "Argentina");
+    const argentinaButton = await screen.findByRole("button", {
+      name: /Argentina/i,
+    });
+    await user.click(argentinaButton);
     await user.click(screen.getByRole("button", { name: /generate story/i }));
 
     expect(
@@ -262,8 +279,10 @@ describe("App — error handling", () => {
       .mockResolvedValueOnce(historicalResponse);
 
     render(<App />);
-    await screen.findByRole("option", { name: "Argentina" });
-    await user.selectOptions(screen.getByRole("combobox"), "Argentina");
+    const argentinaButton = await screen.findByRole("button", {
+      name: /Argentina/i,
+    });
+    await user.click(argentinaButton);
     await user.click(screen.getByRole("button", { name: /generate story/i }));
 
     // First attempt failed → error banner with retry button.
@@ -283,17 +302,21 @@ describe("App — error handling", () => {
       .mockResolvedValueOnce(speculativeResponse);
 
     render(<App />);
-    await screen.findByRole("option", { name: "Argentina" });
-    const select = screen.getByRole("combobox");
+    const argentinaButton = await screen.findByRole("button", {
+      name: /Argentina/i,
+    });
+    const canadaButton = await screen.findByRole("button", {
+      name: /Canada/i,
+    });
     const button = screen.getByRole("button", { name: /generate story/i });
 
     // First story.
-    await user.selectOptions(select, "Argentina");
+    await user.click(argentinaButton);
     await user.click(button);
     await screen.findByText(/historical shootout/i);
 
     // Switch country and generate again.
-    await user.selectOptions(select, "Canada");
+    await user.click(canadaButton);
     await user.click(button);
 
     await screen.findByText(/speculative tale/i);
@@ -308,8 +331,10 @@ describe("App — error handling", () => {
       .mockResolvedValueOnce(historicalResponse);
 
     render(<App />);
-    await screen.findByRole("option", { name: "Argentina" });
-    await user.selectOptions(screen.getByRole("combobox"), "Argentina");
+    const argentinaButton = await screen.findByRole("button", {
+      name: /Argentina/i,
+    });
+    await user.click(argentinaButton);
     await user.click(screen.getByRole("button", { name: /generate story/i }));
 
     // Error appears.
@@ -330,8 +355,10 @@ describe("App — error handling", () => {
     mockedFetchStory.mockRejectedValue({ status: 0 });
 
     render(<App />);
-    await screen.findByRole("option", { name: "Argentina" });
-    await user.selectOptions(screen.getByRole("combobox"), "Argentina");
+    const argentinaButton = await screen.findByRole("button", {
+      name: /Argentina/i,
+    });
+    await user.click(argentinaButton);
     await user.click(screen.getByRole("button", { name: /generate story/i }));
 
     expect(
@@ -345,7 +372,7 @@ describe("App — error handling", () => {
 // ============================================================
 
 describe("App — UI state during loading", () => {
-  it("disables the country selector and button while a request is in flight", async () => {
+  it("disables the country buttons and generate button while a request is in flight", async () => {
     const user = userEvent.setup();
     let resolveStory: (value: StoryResponse) => void = () => {};
     mockedFetchStory.mockReturnValue(
@@ -355,11 +382,14 @@ describe("App — UI state during loading", () => {
     );
 
     render(<App />);
-    await screen.findByRole("option", { name: "Argentina" });
-    await user.selectOptions(screen.getByRole("combobox"), "Argentina");
+    const argentinaButton = await screen.findByRole("button", {
+      name: /Argentina/i,
+    });
+    await user.click(argentinaButton);
     await user.click(screen.getByRole("button", { name: /generate story/i }));
 
-    expect(screen.getByRole("combobox")).toBeDisabled();
+    // All country buttons should be disabled
+    expect(argentinaButton).toBeDisabled();
     expect(
       screen.getByRole("button", { name: /generate story/i }),
     ).toBeDisabled();
@@ -376,12 +406,14 @@ describe("App — UI state during loading", () => {
     mockedFetchStory.mockResolvedValue(historicalResponse);
 
     render(<App />);
-    await screen.findByRole("option", { name: "Argentina" });
-    await user.selectOptions(screen.getByRole("combobox"), "Argentina");
+    const argentinaButton = await screen.findByRole("button", {
+      name: /Argentina/i,
+    });
+    await user.click(argentinaButton);
     await user.click(screen.getByRole("button", { name: /generate story/i }));
 
     await screen.findByText(/historical shootout/i);
-    expect(screen.getByRole("combobox")).toBeEnabled();
+    expect(argentinaButton).toBeEnabled();
     expect(
       screen.getByRole("button", { name: /generate story/i }),
     ).toBeEnabled();

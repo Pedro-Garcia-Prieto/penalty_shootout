@@ -10,12 +10,13 @@ STRICT RULES:
   "goes the wrong way", "ice in the veins", "the dreaded lottery".
 - Build tension kick-by-kick. Highlight the decisive moment.
 - End with one curious or memorable observation about the shootout.
-- Always show the date, venue and year
+- Always show the date, round, venue and year
 
 MATCH FACTS:
 - Tournament: FIFA World Cup {year}
 - Date: {date}
 - Venue: {venue}
+- Round: {round}
 - {home_team} vs {away_team}
 - Score after extra time: {score}
 - Final shootout score: {penalty_score}

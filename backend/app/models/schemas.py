@@ -25,6 +25,7 @@ class MatchInfo(BaseModel):
     year: Optional[str] = None
     venue: Optional[str] = None
     score: Optional[str] = None
+    round: Optional[str] = None
     penalty_score: Optional[str] = None
     kicks: List[Kick] = []
 

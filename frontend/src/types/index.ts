@@ -23,7 +23,7 @@ export interface MatchInfo {
 export interface StoryResponse {
   country: string;
   has_history: boolean;
-  match: MatchInfo | null;
+  matches: MatchInfo[];
   story: string;
 }
 

@@ -44,7 +44,7 @@ async def get_countries() -> CountriesResponse:
 @router.post("/story", response_model=StoryResponse)
 async def post_story(request: StoryRequest) -> StoryResponse:
     """
-    Find a random shootout for the country and generate a narrative.
+    Find all shootouts for the country and generate a comprehensive narrative.
     If the country has no shootout history, generate a speculative story
     based on national footballing character instead.
     """
@@ -54,55 +54,58 @@ async def post_story(request: StoryRequest) -> StoryResponse:
         raise HTTPException(status_code=400, detail=f"Unknown country: {country}")
 
     df = load_matches()
-    matches = find_shootouts_for_country(df, country)
+    matches_df = find_shootouts_for_country(df, country)
 
     # ---------- Branch A: country has shootout history ----------
-    if not matches.empty:
-        row = pick_random_match(matches)
-        kicks = parse_shootout(row)
+    if not matches_df.empty:
+        # Process ALL matches for this country
+        all_matches = []
+        for idx, row in matches_df.iterrows():
+            kicks = parse_shootout(row)
 
-        date_value = row.get("Date")
-        year_value = None
-        if date_value and isinstance(date_value, str) and len(date_value) >= 4:
-            try:
-                year_value = int(date_value[:4])
-            except ValueError:
-                year_value = None
+            date_value = row.get("Date")
+            year_value = None
+            if date_value and isinstance(date_value, str) and len(date_value) >= 4:
+                try:
+                    year_value = int(date_value[:4])
+                except ValueError:
+                    year_value = None
 
-        home_score = row.get("home_score")
-        away_score = row.get("away_score")
-        score_str = (
-            f"{int(home_score)}-{int(away_score)}"
-            if home_score is not None and away_score is not None
-            and str(home_score).strip() and str(away_score).strip()
-            else None
-        )
+            home_score = row.get("home_score")
+            away_score = row.get("away_score")
+            score_str = (
+                f"{int(home_score)}-{int(away_score)}"
+                if home_score is not None and away_score is not None
+                and str(home_score).strip() and str(away_score).strip()
+                else None
+            )
 
-        home_pen = row.get("home_penalty")
-        away_pen = row.get("away_penalty")
-        pen_str = (
-            f"{int(home_pen)}-{int(away_pen)}"
-            if home_pen is not None and away_pen is not None
-            and str(home_pen).strip() and str(away_pen).strip()
-            else None
-        )
+            home_pen = row.get("home_penalty")
+            away_pen = row.get("away_penalty")
+            pen_str = (
+                f"{int(home_pen)}-{int(away_pen)}"
+                if home_pen is not None and away_pen is not None
+                and str(home_pen).strip() and str(away_pen).strip()
+                else None
+            )
 
-        match_info = MatchInfo(
-            home_team=str(row.get("home_team", "")),
-            away_team=str(row.get("away_team", "")),
-            date=str(date_value) if date_value else None,
-            year=str(row.get("Year", "")),
-            venue=str(row.get("Venue", "")),
-            round=str(row.get("Round", "")),    
-            score=score_str,
-            penalty_score=pen_str,
-            kicks=kicks,
-        )
+            match_info = MatchInfo(
+                home_team=str(row.get("home_team", "")),
+                away_team=str(row.get("away_team", "")),
+                date=str(date_value) if date_value else None,
+                year=str(row.get("Year", "")),
+                venue=str(row.get("Venue", "")),
+                round=str(row.get("Round", "")),
+                score=score_str,
+                penalty_score=pen_str,
+                kicks=kicks,
+            )
+            all_matches.append(match_info)
 
-        logger.info("MATCH INFO: %s", match_info)
+        logger.info("Found %d shootout matches for %s", len(all_matches), country)
 
         try:
-            story = await generate_story(match_info)
+            story = await generate_story(country, all_matches)
         except OllamaUnavailableError as exc:
             logger.exception("Ollama unavailable")
             raise HTTPException(status_code=503, detail=str(exc)) from exc
@@ -110,7 +113,7 @@ async def post_story(request: StoryRequest) -> StoryResponse:
         return StoryResponse(
             country=country,
             has_history=True,
-            match=match_info,
+            matches=all_matches,
             story=story,
         )
 
@@ -127,6 +130,6 @@ async def post_story(request: StoryRequest) -> StoryResponse:
     return StoryResponse(
         country=country,
         has_history=False,
-        match=None,
+        matches=[],
         story=story,
     )

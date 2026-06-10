@@ -40,19 +40,37 @@ def _read_template(path: Path) -> str:
     return path.read_text(encoding="utf-8")
 
 
-def build_prompt(match: MatchInfo) -> str:
-    """Inject match facts into the historical-shootout prompt template."""
+def _format_single_match(match: MatchInfo, match_number: int) -> str:
+    """Format a single match with all its details."""
+    kicks_block = _format_kicks_block(match.kicks)
+    return f"""
+MATCH {match_number}:
+- Tournament: FIFA World Cup {match.year or "unknown"}
+- Date: {match.date or "unknown"}
+- Venue: {match.venue or "unknown"}
+- Round: {match.round or "unknown"}
+- {match.home_team} vs {match.away_team}
+- Score after extra time: {match.score or "unknown"}
+- Final shootout score: {match.penalty_score or "unknown"}
+- Kicks taken (in chronological order):
+{kicks_block}
+"""
+
+
+def build_prompt(country: str, matches: List[MatchInfo]) -> str:
+    """Inject all match facts into the multi-shootout prompt template."""
     template = _read_template(SHOOTOUT_PROMPT_PATH)
+    
+    # Format all matches
+    matches_block = "\n".join(
+        _format_single_match(match, idx + 1)
+        for idx, match in enumerate(matches)
+    )
+    
     return template.format(
-        year=match.year if match.year is not None else "unknown",
-        home_team=match.home_team,
-        away_team=match.away_team,
-        date=match.date or "unknown",
-        venue=match.venue or "unknown",
-        round=match.round or "unknown",
-        score=match.score or "unknown",
-        penalty_score=match.penalty_score or "unknown",
-        kicks_block=_format_kicks_block(match.kicks),
+        country=country,
+        num_matches=len(matches),
+        matches_block=matches_block,
     )
 
 
@@ -76,7 +94,7 @@ async def _call_ollama(prompt: str) -> str:
         "options": {
             "temperature": 0.7,
             "top_p": 0.9,
-            "num_predict": 400,
+            "num_predict": 4000,
         },
     }
 
@@ -104,9 +122,9 @@ async def _call_ollama(prompt: str) -> str:
 
 # ---------- Public API ----------
 
-async def generate_story(match: MatchInfo) -> str:
-    """Generate a narrative for a real, historical penalty shootout."""
-    prompt = build_prompt(match)
+async def generate_story(country: str, matches: List[MatchInfo]) -> str:
+    """Generate a comprehensive narrative for all penalty shootouts of a country."""
+    prompt = build_prompt(country, matches)
     return await _call_ollama(prompt)
 
 

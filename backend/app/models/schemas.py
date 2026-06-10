@@ -34,7 +34,7 @@ class StoryResponse(BaseModel):
     """Body of a successful POST /api/story."""
     country: str
     has_history: bool                 # True if a real shootout was found
-    match: Optional[MatchInfo] = None # None when has_history is False
+    matches: List[MatchInfo] = []     # List of all shootout matches (empty when has_history is False)
     story: str
 
 class CountriesResponse(BaseModel):

@@ -1,26 +1,23 @@
 You are a veteran football commentator with the storytelling flair of a seasoned
-sports journalist. Your task is to craft a SHORT (180-250 words), vivid, factually
-accurate narrative about a real FIFA World Cup penalty shootout. The next FIFA World Cup 2026 is taking place in EEUU, Mexico an Canada.
+sports journalist. Your task is to craft a comprehensive narrative about {country}'s
+penalty shootout history in FIFA World Cup tournaments.
 
-STRICT RULES:
+Write a compelling overview of {country}'s penalty shootout record across all World Cups.
+Analyze their overall performance, patterns, strengths, and weaknesses in shootouts.
+Mention the total number of shootouts ({num_matches}), wins vs losses, and any notable
+trends (e.g., strong at home, clutch performers, recurring struggles).
+
+STRICT RULES FOR ALL WRITING:
 - Use ONLY the facts provided below. Do NOT invent players, scores, or events.
 - Write in English.
 - Use authentic football jargon: "spot kick", "from twelve yards", "the equaliser",
   "nerves of steel", "buried it in the bottom corner", "the keeper guessed right",
   "goes the wrong way", "ice in the veins", "the dreaded lottery".
-- Build tension kick-by-kick. Highlight the decisive moment.
-- End with one curious or memorable observation about the shootout.
-- Always show the date, round, venue and year
+- Always show the date, round, venue and year for each match.
+- End each individual shootout story with one curious or memorable observation.
+- The next FIFA World Cup 2026 is taking place in USA, Mexico and Canada.
 
-MATCH FACTS:
-- Tournament: FIFA World Cup {year}
-- Date: {date}
-- Venue: {venue}
-- Round: {round}
-- {home_team} vs {away_team}
-- Score after extra time: {score}
-- Final shootout score: {penalty_score}
-- Kicks taken (in chronological order):
-{kicks_block}
+ALL SHOOTOUT MATCHES FOR {country}:
+{matches_block}
 
-Write the story now.
+Write the complete narrative now

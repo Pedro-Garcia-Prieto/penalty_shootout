@@ -22,39 +22,41 @@ const COUNTRIES = ["Argentina", "Canada", "France", "Spain"];
 const historicalResponse: StoryResponse = {
   country: "Argentina",
   has_history: true,
-  match: {
-    home_team: "Argentina",
-    away_team: "France",
-    date: "2022-12-18",
-    year: "2022",
-    venue: "Lusail Stadium",
-    round: "Final",
-    score: "3-3",
-    penalty_score: "4-2",
-    kicks: [
-      {
-        team: "France",
-        kick_number: 1,
-        running_score: "1-0",
-        player: "Mbappé",
-        scored: true,
-      },
-      {
-        team: "Argentina",
-        kick_number: 2,
-        running_score: "1-1",
-        player: "Messi",
-        scored: true,
-      },
-    ],
-  },
+  matches: [
+    {
+      home_team: "Argentina",
+      away_team: "France",
+      date: "2022-12-18",
+      year: "2022",
+      venue: "Lusail Stadium",
+      round: "Final",
+      score: "3-3",
+      penalty_score: "4-2",
+      kicks: [
+        {
+          team: "France",
+          kick_number: 1,
+          running_score: "1-0",
+          player: "Mbappé",
+          scored: true,
+        },
+        {
+          team: "Argentina",
+          kick_number: 2,
+          running_score: "1-1",
+          player: "Messi",
+          scored: true,
+        },
+      ],
+    },
+  ],
   story: "In the cauldron of Lusail, eleven men stepped up from twelve yards.",
 };
 
 const speculativeResponse: StoryResponse = {
   country: "Canada",
   has_history: false,
-  match: null,
+  matches: [],
   story: "Canada has never tasted the dreaded lottery at a World Cup.",
 };
 

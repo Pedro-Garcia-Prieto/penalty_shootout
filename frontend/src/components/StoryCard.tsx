@@ -1,7 +1,7 @@
 import type { StoryResponse } from "../types";
 
 export function StoryCard({ data }: { data: StoryResponse }) {
-  const { country, has_history, match, story } = data;
+  const { country, has_history, matches, story } = data;
 
   return (
     <article
@@ -17,34 +17,45 @@ export function StoryCard({ data }: { data: StoryResponse }) {
         </span>
       </header>
 
-      {has_history && match && (
+      {has_history && matches.length > 0 && (
         <section className="match-meta">
-          <p>
-            <strong>{match.home_team}</strong> vs{" "}
-            <strong>{match.away_team}</strong>
-            {match.year ? ` — World Cup ${match.year}` : ""}
-            {match.stage ? ` · ${match.stage}` : ""}
+          <p className="matches-summary">
+            <strong>{matches.length}</strong> penalty shootout
+            {matches.length > 1 ? "s" : ""} found in World Cup history
           </p>
-          {match.venue && <p>Venue: {match.venue}</p>}
-          {match.score && <p>Score after extra time: {match.score}</p>}
-          {match.penalty_score && (
-            <p>Penalty shootout: {match.penalty_score}</p>
-          )}
+          {matches.map((match, idx) => (
+            <details key={idx} open={matches.length === 1}>
+              <summary>
+                <strong>{match.home_team}</strong> vs{" "}
+                <strong>{match.away_team}</strong>
+                {match.year ? ` — World Cup ${match.year}` : ""}
+              </summary>
+              <div className="match-details">
+                {match.round && <p>Round: {match.round}</p>}
+                {match.venue && <p>Venue: {match.venue}</p>}
+                {match.date && <p>Date: {match.date}</p>}
+                {match.score && <p>Score after extra time: {match.score}</p>}
+                {match.penalty_score && (
+                  <p>Penalty shootout: {match.penalty_score}</p>
+                )}
 
-          {match.kicks.length > 0 && (
-            <details>
-              <summary>Kick-by-kick drama</summary>
-              <ol>
-                {match.kicks.map((k) => (
-                  <li key={`${k.team}-${k.kick_number}`}>
-                    <strong>{k.team}</strong> — {k.player}{" "}
-                    {k.scored ? "⚽ GOAL" : "❌ MISS"}{" "}
-                    <em>({k.running_score})</em>
-                  </li>
-                ))}
-              </ol>
+                {match.kicks.length > 0 && (
+                  <details>
+                    <summary>Kick-by-kick drama</summary>
+                    <ol>
+                      {match.kicks.map((k) => (
+                        <li key={`${k.team}-${k.kick_number}`}>
+                          <strong>{k.team}</strong> — {k.player}{" "}
+                          {k.scored ? "⚽ GOAL" : "❌ MISS"}{" "}
+                          <em>({k.running_score})</em>
+                        </li>
+                      ))}
+                    </ol>
+                  </details>
+                )}
+              </div>
             </details>
-          )}
+          ))}
         </section>
       )}
 

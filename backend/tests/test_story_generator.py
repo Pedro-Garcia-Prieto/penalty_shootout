@@ -72,7 +72,7 @@ def _mock_async_client(json_payload=None, raise_exc=None,
 # ============================================================
 
 def test_build_prompt_contains_all_facts():
-    prompt = build_prompt(_sample_match())
+    prompt = build_prompt("Argentina", [_sample_match()])
     for needle in ["Argentina", "France", "2022", "Final",
                    "3-3", "4-2", "Mbappé", "Messi", "Coman", "GOAL", "MISS"]:
         assert needle in prompt
@@ -88,11 +88,31 @@ def test_build_prompt_handles_missing_optional_fields():
         penalty_score=None,
         kicks=[],
     )
-    prompt = build_prompt(match)
+    prompt = build_prompt("Spain", [match])
     assert "Spain" in prompt
     assert "Italy" in prompt
     assert "unknown" in prompt  # fallback for missing year / score
     assert "no kick-by-kick data available" in prompt
+
+
+def test_build_prompt_handles_multiple_matches():
+    match1 = _sample_match()
+    match2 = MatchInfo(
+        home_team="Argentina",
+        away_team="Netherlands",
+        year="2014",
+        round="Semi-final",
+        score="0-0",
+        penalty_score="4-2",
+        kicks=[],
+    )
+    prompt = build_prompt("Argentina", [match1, match2])
+    assert "Argentina" in prompt
+    assert "France" in prompt
+    assert "Netherlands" in prompt
+    assert "2022" in prompt
+    assert "2014" in prompt
+    assert "2 penalty shootout" in prompt  # mentions count
 
 
 def test_build_no_history_prompt_contains_country():
@@ -118,7 +138,7 @@ async def test_generate_story_returns_trimmed_text():
         json_payload={"response": "  A thrilling shootout in Lusail.  "}
     )
     with patch.object(story_generator.httpx, "AsyncClient", return_value=cm):
-        story = await generate_story(_sample_match())
+        story = await generate_story("Argentina", [_sample_match()])
     assert story == "A thrilling shootout in Lusail."
 
 
@@ -128,7 +148,7 @@ async def test_generate_story_sends_correct_payload():
         json_payload={"response": "ok"}
     )
     with patch.object(story_generator.httpx, "AsyncClient", return_value=cm):
-        await generate_story(_sample_match())
+        await generate_story("Argentina", [_sample_match()])
 
     # Inspect the payload sent to Ollama.
     mock_client.post.assert_awaited_once()
@@ -146,7 +166,7 @@ async def test_generate_story_sends_correct_payload():
 async def test_generate_story_calls_correct_url():
     cm, mock_client = _mock_async_client(json_payload={"response": "ok"})
     with patch.object(story_generator.httpx, "AsyncClient", return_value=cm):
-        await generate_story(_sample_match())
+        await generate_story("Argentina", [_sample_match()])
 
     args, _ = mock_client.post.call_args
     expected_url = (
@@ -186,7 +206,7 @@ async def test_generate_story_raises_on_timeout():
     cm, _ = _mock_async_client(raise_exc=httpx.TimeoutException("timed out"))
     with patch.object(story_generator.httpx, "AsyncClient", return_value=cm):
         with pytest.raises(OllamaUnavailableError, match="timed out"):
-            await generate_story(_sample_match())
+            await generate_story("Argentina", [_sample_match()])
 
 
 @pytest.mark.asyncio
@@ -194,7 +214,7 @@ async def test_generate_story_raises_on_http_error():
     cm, _ = _mock_async_client(raise_exc=httpx.ConnectError("refused"))
     with patch.object(story_generator.httpx, "AsyncClient", return_value=cm):
         with pytest.raises(OllamaUnavailableError, match="HTTP error"):
-            await generate_story(_sample_match())
+            await generate_story("Argentina", [_sample_match()])
 
 
 @pytest.mark.asyncio
@@ -210,7 +230,7 @@ async def test_generate_story_raises_on_non_2xx_status():
     )
     with patch.object(story_generator.httpx, "AsyncClient", return_value=cm):
         with pytest.raises(OllamaUnavailableError):
-            await generate_story(_sample_match())
+            await generate_story("Argentina", [_sample_match()])
 
 
 @pytest.mark.asyncio
@@ -218,7 +238,7 @@ async def test_generate_story_raises_on_empty_response():
     cm, _ = _mock_async_client(json_payload={"response": "   "})
     with patch.object(story_generator.httpx, "AsyncClient", return_value=cm):
         with pytest.raises(OllamaUnavailableError, match="empty"):
-            await generate_story(_sample_match())
+            await generate_story("Argentina", [_sample_match()])
 
 
 @pytest.mark.asyncio
@@ -226,7 +246,7 @@ async def test_generate_story_raises_when_response_field_missing():
     cm, _ = _mock_async_client(json_payload={})  # no "response" key
     with patch.object(story_generator.httpx, "AsyncClient", return_value=cm):
         with pytest.raises(OllamaUnavailableError):
-            await generate_story(_sample_match())
+            await generate_story("Argentina", [_sample_match()])
 
 
 @pytest.mark.asyncio

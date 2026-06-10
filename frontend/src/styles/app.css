@@ -468,17 +468,59 @@ select {
   line-height: 1.65;
 }
 
-.match-meta details {
-  margin-top: 0.25rem;
-  padding: 1rem 1rem 0.25rem;
-  border-radius: 14px;
-  background: rgba(255, 255, 255, 0.04);
+.matches-summary {
+  font-size: 1.05rem;
+  font-weight: 600;
+  color: var(--accent) !important;
+  margin-bottom: 0.5rem !important;
 }
 
-.match-meta summary {
+.match-meta > details {
+  margin-top: 0.5rem;
+  padding: 1rem;
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.match-meta > details[open] {
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.match-meta > details > summary {
   cursor: pointer;
   font-weight: 700;
   color: var(--text);
+  font-size: 1.05rem;
+  padding: 0.25rem 0;
+}
+
+.match-meta > details > summary:hover {
+  color: var(--accent-2);
+}
+
+.match-details {
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.match-details p {
+  margin: 0.5rem 0;
+}
+
+.match-meta details details {
+  margin-top: 0.75rem;
+  padding: 0.75rem;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.match-meta details details summary {
+  cursor: pointer;
+  font-weight: 600;
+  color: var(--muted-strong);
+  font-size: 0.95rem;
 }
 
 .match-meta ol {
